@@ -9,12 +9,12 @@ use Inertia\Inertia;
 
 class SettingController extends Controller
 {
-    public function index()
-    {
-        return Inertia::render('Admin/Settings', [
-            'settings' => SiteSetting::orderBy('order', 'asc')->get()
-        ]);
-    }
+   public function index()
+{
+    return Inertia::render('Admin/Settings', [
+        'settings' => SiteSetting::all()
+    ]);
+}
 
     public function update(Request $request)
     {

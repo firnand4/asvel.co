@@ -87,7 +87,7 @@ export default function Contact({ settings }) {
                                         value={data.name}
                                         onChange={e => setData('name', e.target.value)}
                                         className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:border-indigo-500 outline-none"
-                                        placeholder="Ahmad Rasyid"
+                                        placeholder="Firnanda Achyunda"
                                     />
                                     {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
                                 </div>
@@ -100,7 +100,7 @@ export default function Contact({ settings }) {
                                         value={data.email}
                                         onChange={e => setData('email', e.target.value)}
                                         className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:border-indigo-500 outline-none"
-                                        placeholder="hello@company.com"
+                                        placeholder="firnanda.aap@gmail.com"
                                     />
                                     {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
                                 </div>
