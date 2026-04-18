@@ -24,7 +24,7 @@ export default function Contact({ settings }) {
         const items = ref.current?.querySelectorAll('.fade-up');
         const obs = new IntersectionObserver(entries => {
             entries.forEach(e => {
-                if (e.isIntersecting) e.target.classList.add('visible');
+                if (e.isIntersecting) e.target.classList.add('opacity-100', 'translate-y-0');
             });
         }, { threshold: 0.1 });
 
@@ -38,93 +38,101 @@ export default function Contact({ settings }) {
     };
 
     return (
-        <section id="contact" className="py-20 bg-gray-900 text-white" ref={ref}>
-            <div className="max-w-6xl mx-auto px-6">
+        <section id="contact" className="py-24 bg-[#08080E] text-white border-t border-white/5 relative overflow-hidden" ref={ref}>
+            <div className="max-w-6xl mx-auto px-6 relative z-10">
 
                 {/* Header */}
-                <div className="text-center mb-12 fade-up">
-                    <div className="text-indigo-400 font-semibold mb-2">
-                        📬 Get In Touch
+                <div className="text-center mb-16 fade-up opacity-0 translate-y-6 transition duration-700">
+                    <div className="text-cyan-400 font-mono text-xs uppercase tracking-[0.2em] mb-4 flex items-center justify-center gap-2">
+                        <span className="w-2 h-2 rounded-full border border-cyan-400 flex items-center justify-center">
+                            <span className="w-1 h-1 bg-cyan-400 rounded-full animate-ping"></span>
+                        </span>
+                        Secure Uplink
                     </div>
 
-                    <h2 className="text-3xl md:text-4xl font-bold">
-                        Let's Build <span className="text-indigo-500">Your Project</span>
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+                        Establish <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">Connection</span>
                     </h2>
 
-                    <p className="text-gray-400 mt-4 max-w-xl mx-auto">
-                        Ready to bring your idea to life? Tell us about your project and we’ll get back to you within 24 hours.
+                    <p className="text-gray-400 mt-6 max-w-xl mx-auto font-light leading-relaxed">
+                        Initialize a project securely. Transmit your requirements and our systems will respond within 24 operational hours.
                     </p>
                 </div>
 
                 {/* Grid */}
-                <div className="grid md:grid-cols-2 gap-10">
+                <div className="grid md:grid-cols-2 gap-12 items-start">
 
                     {/* FORM */}
-                    <div className="bg-gray-800 p-8 rounded-xl shadow fade-up">
+                    <div className="bg-[#05050A] p-8 rounded-lg border border-indigo-500/20 shadow-[0_0_30px_rgba(99,102,241,0.05)] fade-up opacity-0 translate-y-6 transition duration-700 relative">
+                        
+                        <div className="absolute top-0 right-0 p-4 font-mono text-[10px] text-indigo-500">
+                            TCP/IP: Secured
+                        </div>
 
                         {sent ? (
-                            <div className="text-center space-y-4">
-                                <div className="text-4xl">✅</div>
-                                <h3 className="text-xl font-semibold">Message Sent!</h3>
-                                <p className="text-gray-400">
-                                    Thank you for reaching out. Our team will contact you within 24 hours.
+                            <div className="text-center space-y-6 py-10">
+                                <div className="text-6xl text-cyan-400 drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">✓</div>
+                                <h3 className="text-xl font-mono text-gray-200">Transmission_Success</h3>
+                                <p className="text-gray-400 text-sm leading-relaxed">
+                                    Data packet received. Our network nodes will process and echo back shortly.
                                 </p>
                                 <button
                                     onClick={() => setSent(false)}
-                                    className="border px-4 py-2 rounded hover:bg-gray-700 transition"
+                                    className="border border-indigo-500/30 px-6 py-3 rounded text-xs font-mono uppercase tracking-widest text-indigo-300 hover:bg-indigo-500/20 transition-all font-bold"
                                 >
-                                    Send another
+                                    Re-initialize
                                 </button>
                             </div>
                         ) : (
-                            <form onSubmit={submit} className="space-y-5">
+                            <form onSubmit={submit} className="space-y-6 mt-4 font-mono">
 
                                 {/* Name */}
                                 <div>
-                                    <label className="block text-sm mb-1">Full Name</label>
+                                    <label className="block text-xs uppercase tracking-widest text-gray-400 mb-2">Identifier_Name</label>
                                     <input
                                         type="text"
                                         value={data.name}
                                         onChange={e => setData('name', e.target.value)}
-                                        className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:border-indigo-500 outline-none"
-                                        placeholder="Firnanda Achyunda"
+                                        className="w-full px-4 py-3 rounded-sm bg-[#08080E] border border-white/10 focus:border-cyan-400/50 focus:outline-none transition-colors text-sm text-gray-200"
+                                        placeholder="Enter full name..."
                                     />
-                                    {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
+                                    {errors.name && <p className="text-red-400 text-[10px] uppercase mt-2">&gt; ERROR: {errors.name}</p>}
                                 </div>
 
                                 {/* Email */}
                                 <div>
-                                    <label className="block text-sm mb-1">Email</label>
+                                    <label className="block text-xs uppercase tracking-widest text-gray-400 mb-2">Network_Address (Email)</label>
                                     <input
                                         type="email"
                                         value={data.email}
                                         onChange={e => setData('email', e.target.value)}
-                                        className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:border-indigo-500 outline-none"
-                                        placeholder="firnanda.aap@gmail.com"
+                                        className="w-full px-4 py-3 rounded-sm bg-[#08080E] border border-white/10 focus:border-cyan-400/50 focus:outline-none transition-colors text-sm text-gray-200"
+                                        placeholder="address@domain.com"
                                     />
-                                    {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
+                                    {errors.email && <p className="text-red-400 text-[10px] uppercase mt-2">&gt; ERROR: {errors.email}</p>}
                                 </div>
 
                                 {/* Message */}
                                 <div>
-                                    <label className="block text-sm mb-1">Message</label>
+                                    <label className="block text-xs uppercase tracking-widest text-gray-400 mb-2">Payload_Data</label>
                                     <textarea
                                         rows="5"
                                         value={data.message}
                                         onChange={e => setData('message', e.target.value)}
-                                        className="w-full px-4 py-2 rounded bg-gray-900 border border-gray-700 focus:border-indigo-500 outline-none"
-                                        placeholder="Describe your project..."
+                                        className="w-full px-4 py-3 rounded-sm bg-[#08080E] border border-white/10 focus:border-cyan-400/50 focus:outline-none transition-colors text-sm text-gray-200 resize-none"
+                                        placeholder="Describe your system requirements..."
                                     />
-                                    {errors.message && <p className="text-red-400 text-xs mt-1">{errors.message}</p>}
+                                    {errors.message && <p className="text-red-400 text-[10px] uppercase mt-2">&gt; ERROR: {errors.message}</p>}
                                 </div>
 
                                 {/* Button */}
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    className="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded font-semibold transition"
+                                    className="w-full bg-indigo-600/20 border border-indigo-500 hover:bg-indigo-600 text-white py-4 rounded-sm text-xs font-bold uppercase tracking-[0.2em] transition-all overflow-hidden relative group"
                                 >
-                                    {processing ? 'Sending...' : '🚀 Send Message'}
+                                    <span className="relative z-10">{processing ? 'Transmitting...' : 'Execute_Transmission'}</span>
+                                    <div className="absolute inset-0 bg-indigo-500 w-0 group-hover:w-full transition-all duration-300 z-0 opacity-50" />
                                 </button>
 
                             </form>
@@ -133,31 +141,44 @@ export default function Contact({ settings }) {
                     </div>
 
                     {/* INFO */}
-                    <div className="space-y-6 fade-up">
+                    <div className="space-y-6 fade-up opacity-0 translate-y-6 transition duration-700 delay-200">
 
-                        <div className="bg-gray-800 p-6 rounded-xl">
-                            <h3 className="font-semibold mb-4">Contact Information</h3>
+                        <div className="bg-[#05050A] p-8 rounded-lg border border-white/5">
+                            <h3 className="font-mono text-sm uppercase tracking-[0.1em] mb-6 text-gray-200 border-b border-white/10 pb-4">Data Hub Coordinates</h3>
 
-                            <div className="space-y-3 text-sm text-gray-400">
-                                <div>📧 {settings?.email}</div>
-                                <div>📱 {settings?.whatsapp}</div>
-                                <div>📍 {settings?.office_address}</div>
-                                <div>⏰ {settings?.office_hours}</div>
+                            <div className="space-y-4 text-sm">
+                                <div className="flex gap-4 items-center">
+                                    <span className="font-mono text-cyan-500 uppercase text-xs w-12 border-r border-white/10">Mail_</span> 
+                                    <span className="font-sans text-gray-300 font-light tracking-wide">{settings?.email}</span>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="font-mono text-cyan-500 uppercase text-xs w-12 border-r border-white/10">Comm_</span> 
+                                    <span className="font-sans text-gray-300 font-light tracking-wide">{settings?.whatsapp}</span>
+                                </div>
+                                <div className="flex gap-4 items-start">
+                                    <span className="font-mono text-cyan-500 uppercase text-xs w-12 border-r border-white/10 mt-1">Base_</span> 
+                                    <span className="font-sans text-gray-300 font-light tracking-wide leading-relaxed pl-1">{settings?.office_address}</span>
+                                </div>
+                                <div className="flex gap-4 items-center">
+                                    <span className="font-mono text-cyan-500 uppercase text-xs w-12 border-r border-white/10">Time_</span> 
+                                    <span className="font-sans text-gray-300 font-light tracking-wide">{settings?.office_hours}</span>
+                                </div>
                             </div>
 
                             <a
                                 href={`https://wa.me/${settings?.whatsapp_number}`}
                                 target="_blank"
-                                className="block mt-6 bg-green-500 hover:bg-green-600 text-center py-2 rounded text-white"
+                                className="mt-8 flex items-center justify-center gap-2 border border-green-500/50 bg-green-900/20 hover:bg-green-600 text-green-400 hover:text-white py-3 rounded-sm font-mono text-xs uppercase tracking-widest transition-colors font-bold w-full"
                             >
-                                💬 Chat on WhatsApp
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                Establish Secure_Chat
                             </a>
                         </div>
 
-                        <div className="bg-indigo-500/10 border border-indigo-500/30 p-6 rounded-xl">
-                            <h4 className="font-semibold mb-2">🎁 Free Consultation</h4>
-                            <p className="text-sm text-gray-400">
-                                Book a free 30-minute consultation with our technical team.
+                        <div className="bg-gradient-to-r from-indigo-900/30 to-transparent border-l-4 border-indigo-500 p-6 rounded-r-lg">
+                            <h4 className="font-mono text-indigo-300 text-sm uppercase tracking-widest relative z-10 mb-2">🎁 Free System Diagnostics</h4>
+                            <p className="text-[13px] text-gray-400 leading-relaxed font-light">
+                                Connect with our senior engineers for a 30-minute high-level technical consultation without obligation.
                             </p>
                         </div>
 

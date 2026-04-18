@@ -24,7 +24,7 @@ export default function Home({
 }) {
     const defaultSettings = {
         company_name: 'ASVEL',
-        tagline: 'Building Scalable Digital Solutions',
+        tagline: 'asvel coding factory',
         subheadline: 'ASVEL is a premier software house specializing in Web Development, Mobile Apps, AI & Computer Vision, and Data Science.',
         stats_projects: '50+', stats_clients: '30+', stats_years: '5+', stats_satisfaction: '99%',
         about_intro: 'ASVEL is a technology-driven software house founded by engineers who believe that great software is the foundation of every successful modern business.',
