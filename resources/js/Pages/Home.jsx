@@ -30,7 +30,7 @@ export default function Home({
         about_intro: 'ASVEL is a technology-driven software house founded by engineers who believe that great software is the foundation of every successful modern business.',
         vision: 'To be the leading software partner for businesses across Southeast Asia and beyond.',
         mission: 'Deliver scalable, high-quality software solutions that exceed expectations, on time and on budget.',
-        email: 'hello@asvel.co', whatsapp: '+62 812-3456-7890', whatsapp_number: '6281234567890', office_address: 'Jakarta Selatan, Indonesia', office_hours: 'Mon-Fri, 9AM-6PM WIB',
+        email: 'firnanda.aap@gmail.com', whatsapp: '+62 813-3341-3109', whatsapp_number: '6281333413109', office_address: 'Malang, Jawa Timur, Indonesia', office_hours: '24/7',
     };
 
     const s = { ...defaultSettings, ...(settings || {}) };
