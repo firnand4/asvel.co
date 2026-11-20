@@ -37,7 +37,9 @@ export default function Index({ projects }) {
                             {projects.map(p => (
                                 <tr key={p.id}>
                                     <td>
-                                        <div style={{fontSize: '1.5rem'}}>{p.emoji}</div>
+                                        {p.image
+                                            ? <img src={`/${p.image}`} alt="" style={{width: 64, height: 40, borderRadius: 6, objectFit: 'cover'}} onError={e => { e.currentTarget.style.display = 'none'; }} />
+                                            : <div style={{fontSize: '1.5rem'}}>{p.emoji}</div>}
                                     </td>
                                     <td>
                                         <div style={{fontWeight: 600}}>{p.title}</div>
@@ -45,7 +47,7 @@ export default function Index({ projects }) {
                                     </td>
                                     <td>
                                         <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.3rem'}}>
-                                            {p.tech.map(t => <span key={t} className="admin-badge badge-success">{t}</span>)}
+                                            {(p.tech || []).map(t => <span key={t} className="admin-badge badge-success">{t}</span>)}
                                         </div>
                                     </td>
                                     <td>{p.order}</td>

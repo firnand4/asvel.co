@@ -1,44 +1,29 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { useForm, Link } from '@inertiajs/react';
+import ImageUpload from '@/Components/Admin/ImageUpload';
+import TagInput from '@/Components/Admin/TagInput';
 
 export default function Form({ member }) {
     const isEditing = !!member.id;
-    const { data, setData, post, put, processing, errors } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         name: member.name || '',
         role: member.role || '',
         expertise: member.expertise || '',
         bio: member.bio || '',
-        emoji: member.emoji || '👨‍💻',
+        photo: null,
+        remove_photo: false,
         linkedin_url: member.linkedin_url || '',
         order: member.order || 0,
         is_active: member.is_active ?? true,
         skills: member.skills || [],
+        // File uploads need multipart POST; Laravel reads the real verb from _method.
+        ...(isEditing ? { _method: 'put' } : {}),
     });
-
-    const [skillInput, setSkillInput] = useState('');
-
-    const addSkill = (e) => {
-        if (e.key === 'Enter' && skillInput.trim()) {
-            e.preventDefault();
-            if (!data.skills.includes(skillInput.trim())) {
-                setData('skills', [...data.skills, skillInput.trim()]);
-            }
-            setSkillInput('');
-        }
-    };
-
-    const removeSkill = (skill) => {
-        setData('skills', data.skills.filter(s => s !== skill));
-    };
 
     const submit = (e) => {
         e.preventDefault();
-        if (isEditing) {
-            put(route('admin.team.update', member.id));
-        } else {
-            post(route('admin.team.store'));
-        }
+        post(isEditing ? route('admin.team.update', member.id) : route('admin.team.store'), { forceFormData: true });
     };
 
     return (
@@ -88,14 +73,18 @@ export default function Form({ member }) {
                         />
                     </div>
 
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem'}}>
-                        <div className="admin-form-group">
-                            <label className="admin-label">Emoji Avatar</label>
-                            <input
-                                type="text" className="admin-input"
-                                value={data.emoji} onChange={e => setData('emoji', e.target.value)}
-                            />
-                        </div>
+                    <ImageUpload
+                        label="Photo"
+                        hint="JPG, PNG or WebP, max 2 MB. A square photo works best."
+                        current={member.photo}
+                        file={data.photo}
+                        onFile={f => setData('photo', f)}
+                        removed={data.remove_photo}
+                        onRemove={v => setData('remove_photo', v)}
+                        error={errors.photo}
+                    />
+
+                    <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem'}}>
                         <div className="admin-form-group">
                             <label className="admin-label">Order</label>
                             <input
@@ -124,22 +113,13 @@ export default function Form({ member }) {
                         />
                     </div>
 
-                    <div className="admin-form-group">
-                        <label className="admin-label">Skills (Type and press Enter)</label>
-                        <input
-                            type="text" className="admin-input"
-                            value={skillInput} onChange={e => setSkillInput(e.target.value)}
-                            onKeyDown={addSkill}
-                            placeholder="Add skill..."
-                        />
-                        <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem'}}>
-                            {data.skills.map(s => (
-                                <span key={s} className="admin-badge badge-success" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}>
-                                    {s} <button type="button" onClick={() => removeSkill(s)} style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'inherit'}}>×</button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                    <TagInput
+                        label="Skills"
+                        values={data.skills}
+                        onChange={v => setData('skills', v)}
+                        placeholder="Contoh: Laravel"
+                        error={errors.skills}
+                    />
 
                     <div style={{marginTop: '2rem', display: 'flex', justifyContent: 'flex-end'}}>
                         <button type="submit" className="admin-btn admin-btn-primary" disabled={processing}>

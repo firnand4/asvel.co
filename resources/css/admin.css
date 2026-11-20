@@ -1,21 +1,37 @@
 :root {
-    --admin-bg: #0a0a0c;
-    --admin-surface: #121216;
-    --admin-surface-2: #1a1a20;
+    --admin-bg: #f7f7f5;
+    --admin-surface: #ffffff;
+    --admin-surface-2: #f0efea;
+    --admin-border: rgba(24, 24, 27, 0.1);
+    --admin-text: #18181b;
+    --admin-text-muted: #52525b;
+    --admin-primary: #4338ca;
+    --admin-primary-glow: rgba(67, 56, 202, 0.15);
+    --admin-success: #059669;
+    --admin-danger: #dc2626;
+    --admin-topbar: rgba(255, 255, 255, 0.85);
+    --admin-sidebar-width: 260px;
+}
+
+/* Dark admin when the user switched to dark mode */
+html.dark {
+    --admin-bg: #111113;
+    --admin-surface: #1a1a1e;
+    --admin-surface-2: #232328;
     --admin-border: rgba(255, 255, 255, 0.08);
-    --admin-text: #e2e8f0;
-    --admin-text-muted: #94a3b8;
-    --admin-primary: #6c63ff;
-    --admin-primary-glow: rgba(108, 99, 255, 0.2);
+    --admin-text: #e4e4e7;
+    --admin-text-muted: #a1a1aa;
+    --admin-primary: #818cf8;
+    --admin-primary-glow: rgba(129, 140, 248, 0.2);
     --admin-success: #10b981;
     --admin-danger: #ef4444;
-    --admin-sidebar-width: 260px;
+    --admin-topbar: rgba(17, 17, 19, 0.85);
 }
 
 body.admin-mode {
     background-color: var(--admin-bg);
     color: var(--admin-text);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     margin: 0;
 }
 
@@ -37,14 +53,39 @@ body.admin-mode {
 }
 
 .admin-sidebar-logo {
-    padding: 2rem;
-    font-size: 1.5rem;
-    font-weight: 800;
+    padding: 1.75rem 1.5rem;
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
     color: var(--admin-text);
     text-decoration: none;
+}
+
+/* Same wordmark as the public site */
+.admin-wordmark {
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+}
+
+.admin-wordmark-dot {
+    color: #0f766e;
+    margin-left: 1px;
+}
+
+html.dark .admin-wordmark-dot {
+    color: #5eead4;
+}
+
+.admin-wordmark-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    background: var(--admin-primary-glow);
+    color: var(--admin-primary);
 }
 
 .admin-nav {
@@ -99,7 +140,7 @@ body.admin-mode {
 
 .admin-topbar {
     height: 70px;
-    background: rgba(10, 10, 12, 0.8);
+    background: var(--admin-topbar);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--admin-border);
     display: flex;
@@ -272,3 +313,51 @@ body.admin-mode {
 .badge-success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
 .badge-warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 .badge-danger  { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+/* Flash message after saving / deleting */
+.admin-toast {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    border: 1px solid var(--admin-border);
+    border-left: 4px solid var(--admin-success);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    font-size: 0.9rem;
+    font-weight: 500;
+    animation: admin-toast-in 0.2s ease-out;
+}
+
+.admin-toast > span:first-child {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--admin-success);
+    color: #fff;
+    font-size: 0.75rem;
+}
+
+.admin-toast-error { border-left-color: var(--admin-danger); }
+.admin-toast-error > span:first-child { background: var(--admin-danger); }
+
+.admin-toast button {
+    border: none;
+    background: transparent;
+    color: var(--admin-text-muted);
+    cursor: pointer;
+    margin-left: 0.25rem;
+}
+
+@keyframes admin-toast-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -25,7 +25,7 @@ export default function Index({ team }) {
                     <table className="admin-table">
                         <thead>
                             <tr>
-                                <th>Avatar</th>
+                                <th>Photo</th>
                                 <th>Name</th>
                                 <th>Role</th>
                                 <th>Order</th>
@@ -37,7 +37,9 @@ export default function Index({ team }) {
                             {team.map(m => (
                                 <tr key={m.id}>
                                     <td>
-                                        <div style={{fontSize: '1.5rem'}}>{m.emoji}</div>
+                                        {m.photo
+                                            ? <img src={`/${m.photo}`} alt="" style={{width: 40, height: 40, borderRadius: '50%', objectFit: 'cover'}} />
+                                            : <div style={{width: 40, height: 40, borderRadius: '50%', background: 'var(--admin-surface-2)', display: 'grid', placeItems: 'center', fontWeight: 700, fontSize: '0.8rem'}}>{m.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}</div>}
                                     </td>
                                     <td>
                                         <div style={{fontWeight: 600}}>{m.name}</div>

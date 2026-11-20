@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BlogPost;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class BlogController extends Controller
@@ -25,8 +27,11 @@ class BlogController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge(['slug' => Str::slug($request->input('slug') ?: $request->input('title'))]);
+
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
+            'slug'         => ['required', 'alpha_dash', 'max:255', Rule::unique('blog_posts', 'slug')],
             'category'     => 'required|string|max:100',
             'excerpt'      => 'required|string',
             'content'      => 'nullable|string',
@@ -39,7 +44,7 @@ class BlogController extends Controller
 
         BlogPost::create($validated);
 
-        return redirect()->route('admin.blog.index')->with('success', 'Blog post created.');
+        return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil ditambahkan.');
     }
 
     public function edit(BlogPost $blog)
@@ -51,8 +56,11 @@ class BlogController extends Controller
 
     public function update(Request $request, BlogPost $blog)
     {
+        $request->merge(['slug' => Str::slug($request->input('slug') ?: $request->input('title'))]);
+
         $validated = $request->validate([
             'title'        => 'required|string|max:255',
+            'slug'         => ['required', 'alpha_dash', 'max:255', Rule::unique('blog_posts', 'slug')->ignore($blog->id)],
             'category'     => 'required|string|max:100',
             'excerpt'      => 'required|string',
             'content'      => 'nullable|string',
@@ -65,12 +73,12 @@ class BlogController extends Controller
 
         $blog->update($validated);
 
-        return redirect()->route('admin.blog.index')->with('success', 'Blog post updated.');
+        return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil diperbarui.');
     }
 
     public function destroy(BlogPost $blog)
     {
         $blog->delete();
-        return redirect()->route('admin.blog.index')->with('success', 'Post removed.');
+        return redirect()->route('admin.blog.index')->with('success', 'Artikel berhasil dihapus.');
     }
 }

@@ -28,7 +28,7 @@ class TechStackController extends Controller
 
         TechStack::create($validated);
 
-        return redirect()->route('admin.tech-stack.index')->with('success', 'Tech added.');
+        return redirect()->route('admin.tech-stack.index')->with('success', 'Teknologi berhasil ditambahkan.');
     }
 
     public function update(Request $request, TechStack $tech_stack)
@@ -43,12 +43,12 @@ class TechStackController extends Controller
 
         $tech_stack->update($validated);
 
-        return redirect()->route('admin.tech-stack.index')->with('success', 'Tech updated.');
+        return redirect()->route('admin.tech-stack.index')->with('success', 'Teknologi berhasil diperbarui.');
     }
 
     public function destroy(TechStack $tech_stack)
     {
         $tech_stack->delete();
-        return redirect()->route('admin.tech-stack.index')->with('success', 'Tech removed.');
+        return redirect()->route('admin.tech-stack.index')->with('success', 'Teknologi berhasil dihapus.');
     }
 }

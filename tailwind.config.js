@@ -10,10 +10,27 @@ export default {
         './resources/js/**/*.jsx',
     ],
 
+    darkMode: 'class',
+
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+            },
+            // Theme tokens; values live in resources/css/app.css (light on :root, dark on .dark)
+            colors: {
+                page: 'rgb(var(--page) / <alpha-value>)',
+                section: 'rgb(var(--section) / <alpha-value>)',
+                surface: 'rgb(var(--surface) / <alpha-value>)',
+                'surface-2': 'rgb(var(--surface-2) / <alpha-value>)',
+                fg: 'rgb(var(--fg) / <alpha-value>)',
+                'fg-2': 'rgb(var(--fg-2) / <alpha-value>)',
+                muted: 'rgb(var(--muted) / <alpha-value>)',
+                subtle: 'rgb(var(--subtle) / <alpha-value>)',
+                accent: 'rgb(var(--accent) / <alpha-value>)',
+                brand: 'rgb(var(--brand) / <alpha-value>)',
+                line: 'var(--line)',
+                'line-soft': 'var(--line-soft)',
             },
         },
     },

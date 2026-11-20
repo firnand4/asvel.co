@@ -1,3 +1,100 @@
 @tailwind base;
+
+@layer base {
+    /* Light: warm off-white and stone, muted teal accent, deep indigo brand */
+    :root {
+        color-scheme: light;
+        --page: 255 255 255;
+        --section: 241 240 234;
+        --surface: 255 255 255;
+        --surface-2: 245 244 239;
+        --fg: 24 24 27;
+        --fg-2: 63 63 70;
+        --muted: 82 82 91;
+        --subtle: 113 113 122;
+        --accent: 15 118 110;
+        --brand: 67 56 202;
+        --line: rgb(24 24 27 / 0.12);
+        --line-soft: rgb(24 24 27 / 0.07);
+    }
+
+    /* Dark: neutral charcoal (not blue-black). .theme-dark forces these on a sub-tree, e.g. the hero camera demo */
+    .dark, .theme-dark {
+        color-scheme: dark;
+        --page: 17 17 19;
+        --section: 26 26 30;
+        --surface: 32 32 37;
+        --surface-2: 40 40 46;
+        --fg: 244 244 245;
+        --fg-2: 212 212 216;
+        --muted: 161 161 170;
+        --subtle: 120 120 130;
+        --accent: 94 234 212;
+        --brand: 165 180 252;
+        --line: rgb(255 255 255 / 0.1);
+        --line-soft: rgb(255 255 255 / 0.06);
+    }
+
+    /* Solid deep-indigo block used for one section as a deliberate accent, same in both themes */
+    .theme-ink {
+        color-scheme: dark;
+        --page: 30 27 75;
+        --section: 30 27 75;
+        --surface: 43 39 104;
+        --surface-2: 52 47 122;
+        --fg: 255 255 255;
+        --fg-2: 224 231 255;
+        --muted: 199 210 254;
+        --subtle: 165 180 252;
+        --accent: 94 234 212;
+        --brand: 199 210 254;
+        --line: rgb(255 255 255 / 0.16);
+        --line-soft: rgb(255 255 255 / 0.1);
+    }
+}
 @tailwind components;
 @tailwind utilities;
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ── Section backgrounds ──────────────────────────────────────────
+   Sections alternate page / section tone by their position among the sections that
+   are actually rendered (empty sections return null), so hiding one never puts two
+   blocks of the same colour next to each other. Process keeps its ink block. */
+@layer components {
+    main > section {
+        background-color: rgb(var(--page));
+    }
+    main > section:nth-of-type(even):not(.theme-ink) {
+        background-color: rgb(var(--section));
+        border-top: 1px solid var(--line-soft);
+        border-bottom: 1px solid var(--line-soft);
+    }
+
+    /* Hero: soft, low-contrast wash (brand from top right, accent from bottom left) */
+    .hero-bg {
+        background-color: rgb(var(--page));
+        background-image:
+            radial-gradient(ellipse 65% 70% at 100% 0%, rgb(var(--brand) / 0.09), transparent 70%),
+            radial-gradient(ellipse 55% 60% at 0% 100%, rgb(var(--accent) / 0.07), transparent 70%),
+            linear-gradient(to bottom, rgb(var(--page)), rgb(var(--section) / 0.6));
+    }
+
+    /* Horizontal scrollers keep touch/trackpad scrolling but hide the bar */
+    .no-scrollbar { scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* Section label above each heading */
+    .eyebrow {
+        display: inline-block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: rgb(var(--accent));
+    }
+}

@@ -24,16 +24,43 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\MessageController;
 
 Route::get('/', function () {
+    $team       = TeamMember::where('is_active', true)->orderBy('order')->get();
+    $services   = Service::where('is_active', true)->orderBy('order')->get();
+    $portfolio  = PortfolioItem::where('is_active', true)->orderBy('order')->get();
+    $techStacks = TechStack::where('is_active', true)->orderBy('order')->get();
+
     return Inertia::render('Home', [
-        'team'         => TeamMember::where('is_active', true)->orderBy('order')->get(),
-        'services'     => Service::where('is_active', true)->orderBy('order')->get(),
-        'portfolio'    => PortfolioItem::where('is_active', true)->orderBy('order')->get(),
+        'team'         => $team,
+        'services'     => $services,
+        'portfolio'    => $portfolio,
         'blogPosts'    => BlogPost::where('is_published', true)->orderBy('order')->orderByDesc('published_at')->get(),
         'testimonials' => Testimonial::where('is_active', true)->orderBy('order')->get(),
-        'techStacks'   => TechStack::where('is_active', true)->orderBy('order')->get(),
+        'techStacks'   => $techStacks,
         'settings'     => SiteSetting::allKeyed(),
+        // Counted from what is actually entered in the admin panel, so every number is verifiable on the page.
+        'stats'        => [
+            'projects'     => $portfolio->count(),
+            'services'     => $services->count(),
+            'technologies' => $techStacks->count(),
+            'team'         => $team->count(),
+        ],
+    ])->withViewData([
+        'metaTitle'       => 'Asvel Coding Factory, Software House & AI Computer Vision Malang',
+        'metaDescription' => 'Asvel Coding Factory membuat website, aplikasi, dan sistem AI computer vision untuk bisnis di Malang dan seluruh Indonesia.',
     ]);
 })->name('home');
+
+Route::get('/blog/{slug}', function (string $slug) {
+    $post = BlogPost::where('slug', $slug)->where('is_published', true)->firstOrFail();
+
+    return Inertia::render('Blog/Show', [
+        'post'     => $post,
+        'settings' => SiteSetting::allKeyed(),
+    ])->withViewData([
+        'metaTitle'       => $post->title . ' | Asvel Coding Factory',
+        'metaDescription' => $post->excerpt,
+    ]);
+})->name('blog.show');
 
 Route::post('/contact', function (Request $request) {
     $validated = $request->validate([
@@ -44,7 +71,7 @@ Route::post('/contact', function (Request $request) {
 
     ContactMessage::create($validated);
 
-    return back()->with('success', 'Message sent! We will get back to you shortly.');
+    return back()->with('success', 'Pesan terkirim. Kami akan segera menghubungi Anda.');
 });
 
 // Admin Panel Routes

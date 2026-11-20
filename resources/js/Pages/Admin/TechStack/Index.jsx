@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { useForm } from '@inertiajs/react';
+import IconPicker from '@/Components/Admin/IconPicker';
 
 export default function Index({ techs }) {
     const { data, setData, post, put, delete: destroy, processing, reset } = useForm({
@@ -57,9 +58,8 @@ export default function Index({ techs }) {
                         <label className="admin-label">Name</label>
                         <input type="text" className="admin-input" value={data.name} onChange={e => setData('name', e.target.value)} required />
                     </div>
-                    <div className="admin-form-group" style={{width: '80px', marginBottom: 0}}>
-                        <label className="admin-label">Emoji</label>
-                        <input type="text" className="admin-input" value={data.emoji} onChange={e => setData('emoji', e.target.value)} required />
+                    <div style={{width: '170px'}}>
+                        <IconPicker label="Icon" value={data.emoji} onChange={v => setData('emoji', v)} />
                     </div>
                     <div className="admin-form-group" style={{width: '150px', marginBottom: 0}}>
                         <label className="admin-label">Category</label>

@@ -28,9 +28,8 @@ export default function Settings({ settings }) {
     // Grouping settings
     const groups = {
         'Hero & Branding': ['company_name', 'tagline', 'subheadline'],
-        'Contact Info': ['email', 'whatsapp', 'whatsapp_number', 'office_address', 'office_hours'],
+        'Contact Info': ['email', 'whatsapp', 'whatsapp_number', 'office_address', 'office_hours', 'maps_embed_url'],
         'About Section': ['about_intro', 'vision', 'mission'],
-        'Statistics': ['stats_projects', 'stats_clients', 'stats_years', 'stats_satisfaction'],
         'Social Media': ['linkedin_url', 'github_url', 'twitter_url', 'instagram_url'],
     };
 
@@ -65,6 +64,7 @@ export default function Settings({ settings }) {
                                                 onChange={e => handleChange(key, e.target.value)}
                                             />
                                         )}
+                                        {errors[`settings.${key}`] && <div className="badge-danger">{errors[`settings.${key}`]}</div>}
                                     </div>
                                 );
                             })}

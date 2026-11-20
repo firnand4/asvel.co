@@ -1,7 +1,62 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLang } from '../../i18n';
+
+// Shows the screenshot from public/<image>; falls back to a placeholder until the file exists.
+function ProjectImage({ project }) {
+    const [failed, setFailed] = useState(false);
+    const src = project.image && !failed ? `/${project.image.replace(/^\/+/, '')}` : null;
+
+    return (
+        <div className="relative aspect-[16/10] bg-accent/[0.07] border-b border-line-soft overflow-hidden">
+            {src ? (
+                <img
+                    src={src}
+                    alt={project.title}
+                    loading="lazy"
+                    onError={() => setFailed(true)}
+                    className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                />
+            ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
+                    <span className="relative text-5xl">{project.emoji}</span>
+                    <span className="relative text-sm text-subtle">{project.title}</span>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function Portfolio({ projects = [] }) {
+    const { t } = useLang();
     const ref = useRef(null);
+    const trackRef = useRef(null);
+    const [canPrev, setCanPrev] = useState(false);
+    const [canNext, setCanNext] = useState(false);
+
+    // Enable/disable the arrows from the carousel's scroll position.
+    useEffect(() => {
+        const track = trackRef.current;
+        if (!track) return;
+        const update = () => {
+            setCanPrev(track.scrollLeft > 4);
+            setCanNext(track.scrollLeft + track.clientWidth < track.scrollWidth - 4);
+        };
+        update();
+        track.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        return () => {
+            track.removeEventListener('scroll', update);
+            window.removeEventListener('resize', update);
+        };
+    }, [projects.length]);
+
+    const scrollByCard = (dir) => {
+        const track = trackRef.current;
+        const card = track?.firstElementChild;
+        if (!card) return;
+        const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+        track.scrollBy({ left: dir * (card.offsetWidth + gap), behavior: 'smooth' });
+    };
 
     useEffect(() => {
         const items = ref.current?.querySelectorAll('.fade-up');
@@ -15,81 +70,101 @@ export default function Portfolio({ projects = [] }) {
         return () => obs.disconnect();
     }, []);
 
-    return (
-        <section id="portfolio" className="py-24 bg-[#05050A] text-white border-y border-white/5 relative overflow-hidden" ref={ref}>
-            {/* Atmospheric Depth - Deep Indigo Radial */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-900/10 rounded-full blur-[150px] pointer-events-none" />
+    if (!projects.length) return null;
 
-            <div className="max-w-6xl mx-auto px-6 relative z-10">
+    return (
+        <section id="portfolio" className="py-24 text-fg overflow-hidden" ref={ref}>
+
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
                 {/* Header */}
-                <div className="text-center mb-16 fade-up opacity-0 translate-y-6 transition duration-700">
-                    <div className="text-indigo-400 font-mono text-xs uppercase tracking-[0.2em] mb-4">
-                        // System Logs_
-                    </div>
+                <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
+                <div className="max-w-2xl fade-up opacity-0 translate-y-6 transition duration-700">
+                    <div className="eyebrow mb-4">{t.portfolio.eyebrow}</div>
 
                     <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-                        Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Deployments</span>
+                        {t.portfolio.title}
                     </h2>
 
-                    <p className="text-gray-400 mt-6 max-w-xl mx-auto font-light leading-relaxed">
-                        A selection of securely executed projects where we resolved critical business constraints with intelligent systems.
+                    <p className="text-muted mt-6 max-w-xl font-light leading-relaxed">
+                        {t.portfolio.subtitle}
                     </p>
                 </div>
 
-                {/* Grid */}
-                <div className="grid md:grid-cols-3 gap-8">
+                {(canPrev || canNext) && (
+                    <div className="hidden sm:flex gap-2">
+                        {[[-1, '←', t.portfolio.prev, canPrev], [1, '→', t.portfolio.next, canNext]].map(([dir, arrow, label, enabled]) => (
+                            <button
+                                key={dir}
+                                type="button"
+                                onClick={() => scrollByCard(dir)}
+                                disabled={!enabled}
+                                aria-label={label}
+                                className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface text-fg hover:border-fg/40 disabled:opacity-35 disabled:cursor-default transition-colors"
+                            >
+                                {arrow}
+                            </button>
+                        ))}
+                    </div>
+                )}
+                </div>
+
+                {/* Horizontal carousel: swipe on touch, arrows on larger screens */}
+                <div
+                    ref={trackRef}
+                    className="no-scrollbar -mx-4 px-4 scroll-px-4 sm:mx-0 sm:px-0 sm:scroll-px-0 flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 fade-up opacity-0 translate-y-6 transition duration-700"
+                >
                     {projects.map((p, i) => (
                         <div
-                            key={i}
-                            className="bg-[#0A0A12] rounded-lg overflow-hidden border border-white/5 hover:border-indigo-500/40 transition-all duration-500 hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] fade-up opacity-0 translate-y-6 group flex flex-col"
-                            style={{ transitionDelay: `${i * 100}ms` }}
+                            key={p.id ?? i}
+                            className="shrink-0 snap-start w-[85%] sm:w-[calc(50%-0.75rem)] lg:w-[calc((100%-3rem)/3)] bg-surface rounded-lg overflow-hidden border border-line-soft hover:border-brand/40 transition-colors duration-300 group flex flex-col"
                         >
 
-                            {/* Thumbnail Overlay */}
-                            <div className="relative h-48 flex items-center justify-center bg-[#0C0C14] border-b border-white/5 overflow-hidden">
-                                {/* Tech grid */}
-                                <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:15px_15px] pointer-events-none opacity-50" />
-                                
-                                <span className="text-6xl transform group-hover:scale-110 transition-transform duration-500 grayscale group-hover:grayscale-0 relative z-10">{p.emoji}</span>
+                            <ProjectImage project={p} />
 
-                                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-
-                            {/* Body */}
                             <div className="p-7 flex flex-col gap-4 flex-1">
 
-                                <h3 className="text-lg font-semibold text-gray-200 group-hover:text-indigo-400 transition-colors">
+                                {p.category && (
+                                    <span className="self-start text-xs font-semibold text-accent bg-accent/10 border border-accent/20 px-2.5 py-0.5 rounded-full">
+                                        {p.category}
+                                    </span>
+                                )}
+
+                                <h3 className="text-lg font-semibold text-fg group-hover:text-brand transition-colors">
                                     {p.title}
                                 </h3>
 
-                                <p className="text-[13px] text-gray-400 leading-relaxed font-light">
-                                    {p.description}
-                                </p>
+                                {p.description && (
+                                    <p className="text-sm text-muted leading-relaxed">
+                                        {p.description}
+                                    </p>
+                                )}
 
-                                {/* Tech Stack Tags */}
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                    {(p.tech || []).map(t => (
-                                        <span
-                                            key={t}
-                                            className="text-[10px] font-mono text-indigo-300 uppercase tracking-widest bg-indigo-900/20 border border-indigo-500/20 px-2 py-1 rounded-sm"
-                                        >
-                                            {t}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                {/* Problem & Result Layout */}
-                                <div className="mt-4 pt-4 border-t border-white/5 text-[12px] space-y-3 font-mono">
-                                    <div>
-                                        <span className="text-gray-600 block mb-1 uppercase tracking-widest">Constraint:</span>
-                                        <p className="text-gray-400 leading-relaxed">{p.problem}</p>
+                                {(p.tech || []).length > 0 && (
+                                    <div className="flex flex-wrap gap-2 mt-1">
+                                        {p.tech.map(tech => (
+                                            <span key={tech} className="text-[11px] text-brand bg-brand/10 border border-brand/20 px-2 py-0.5 rounded">
+                                                {tech}
+                                            </span>
+                                        ))}
                                     </div>
+                                )}
 
-                                    <div>
-                                        <span className="text-cyan-500/80 block mb-1 uppercase tracking-widest">Resolution:</span>
-                                        <p className="text-gray-300 leading-relaxed">{p.result}</p>
+                                {(p.problem || p.result) && (
+                                    <div className="mt-2 pt-4 border-t border-line-soft text-[13px] space-y-3">
+                                        {p.problem && (
+                                            <div>
+                                                <span className="text-subtle block mb-1 font-semibold">{t.portfolio.problem}</span>
+                                                <p className="text-muted leading-relaxed">{p.problem}</p>
+                                            </div>
+                                        )}
+                                        {p.result && (
+                                            <div>
+                                                <span className="text-accent block mb-1 font-semibold">{t.portfolio.result}</span>
+                                                <p className="text-fg-2 leading-relaxed">{p.result}</p>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
+                                )}
 
                             </div>
 

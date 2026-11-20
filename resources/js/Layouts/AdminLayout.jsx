@@ -1,15 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { Link, usePage, Head } from '@inertiajs/react';
 import '../../css/admin.css';
+import ThemeToggle from '@/Components/ThemeToggle';
 
 export default function AdminLayout({ children, title }) {
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage().props;
     const { url } = usePage();
+    const [toast, setToast] = useState(null);
 
     useEffect(() => {
         document.body.classList.add('admin-mode');
         return () => document.body.classList.remove('admin-mode');
     }, []);
+
+    // Each response carries a fresh `flash` object, so a repeated message shows again.
+    useEffect(() => {
+        const message = flash?.success || flash?.error;
+        if (!message) return;
+        setToast({ message, type: flash?.error ? 'error' : 'success' });
+        const timer = setTimeout(() => setToast(null), 4000);
+        return () => clearTimeout(timer);
+    }, [flash]);
 
     const navLinks = [
         { label: 'Dashboard', href: '/admin/dashboard', icon: '📊' },
@@ -30,10 +41,19 @@ export default function AdminLayout({ children, title }) {
         <div className="admin-layout">
             <Head title={`Admin - ${title}`} />
 
+            {toast && (
+                <div role="status" aria-live="polite" className={`admin-toast admin-toast-${toast.type}`}>
+                    <span>{toast.type === 'success' ? '✓' : '!'}</span>
+                    {toast.message}
+                    <button type="button" onClick={() => setToast(null)} aria-label="Tutup">✕</button>
+                </div>
+            )}
+
             {/* Sidebar */}
             <aside className="admin-sidebar">
                 <Link href="/admin/dashboard" className="admin-sidebar-logo">
-                    <span style={{color: 'var(--admin-primary)'}}>▲</span> ASVEL Admin
+                    <span className="admin-wordmark">asvel coding factory<span className="admin-wordmark-dot">.</span></span>
+                    <span className="admin-wordmark-tag">admin</span>
                 </Link>
 
                 <nav className="admin-nav">
@@ -67,6 +87,7 @@ export default function AdminLayout({ children, title }) {
                         {title}
                     </div>
                     <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                        <ThemeToggle className="admin-btn admin-btn-outline" />
                         <Link href="/" className="admin-btn admin-btn-outline" style={{fontSize: '0.8rem'}}>
                             👁️ View Site
                         </Link>

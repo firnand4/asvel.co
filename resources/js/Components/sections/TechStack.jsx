@@ -1,9 +1,65 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useLang } from '../../i18n';
+
+// Tech name (lower-case) -> Simple Icons slug. Names without a logo (e.g. AWS) show as text only.
+const ICON_SLUGS = {
+    'laravel': 'laravel',
+    'node.js': 'nodedotjs',
+    'react': 'react',
+    'react native': 'react',
+    'vue.js': 'vuedotjs',
+    'python': 'python',
+    'pytorch': 'pytorch',
+    'tensorflow': 'tensorflow',
+    'opencv': 'opencv',
+    'flutter': 'flutter',
+    'kotlin': 'kotlin',
+    'android': 'android',
+    'postgresql': 'postgresql',
+    'mysql': 'mysql',
+    'mongodb': 'mongodb',
+    'redis': 'redis',
+    'docker': 'docker',
+    'nginx': 'nginx',
+    'git': 'git',
+    'linux': 'linux',
+    'figma': 'figma',
+    'php': 'php',
+    'javascript': 'javascript',
+    'typescript': 'typescript',
+    'tailwind css': 'tailwindcss',
+    'firebase': 'firebase',
+};
+
+function TechLabel({ name }) {
+    const slug = ICON_SLUGS[name.toLowerCase()];
+    const [failed, setFailed] = useState(false);
+
+    return (
+        <span className="inline-flex items-center gap-2 text-sm text-fg-2 bg-surface border border-line-soft rounded-full px-3 py-1.5">
+            {slug && !failed && (
+                <img
+                    src={`https://cdn.simpleicons.org/${slug}`}
+                    alt=""
+                    width="16"
+                    height="16"
+                    loading="lazy"
+                    onError={() => setFailed(true)}
+                    className="h-4 w-4"
+                />
+            )}
+            {name}
+        </span>
+    );
+}
 
 export default function TechStack({ techStack = [] }) {
+    const { t } = useLang();
 
-    const safeData = (techStack || []).filter(t => t && t.category);
-    const categories = [...new Set(safeData.map(t => t.category))];
+    const safeData = (techStack || []).filter(item => item && item.name);
+
+    // Unique names in the admin-defined order (e.g. React and React Native share a logo but stay separate).
+    const names = [...new Set(safeData.map(item => item.name))];
 
     const ref = useRef(null);
 
@@ -11,7 +67,7 @@ export default function TechStack({ techStack = [] }) {
         const items = ref.current?.querySelectorAll('.fade-up');
         const obs = new IntersectionObserver(entries => {
             entries.forEach(e => {
-                if (e.isIntersecting) e.target.classList.add('visible');
+                if (e.isIntersecting) e.target.classList.add('opacity-100', 'translate-y-0');
             });
         }, { threshold: 0.1 });
 
@@ -19,66 +75,24 @@ export default function TechStack({ techStack = [] }) {
         return () => obs.disconnect();
     }, []);
 
+    if (!safeData.length) return null;
+
     return (
-        <section id="tech" className="py-24 bg-[#05050A] text-white border-y border-white/5 relative overflow-hidden" ref={ref}>
-            
-            {/* Atmospheric Depth - Deep Indigo Glow */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-900/10 rounded-full blur-[150px] pointer-events-none" />
+        <section id="tech" className="py-16 md:py-20 text-fg overflow-hidden" ref={ref}>
+            <div className="max-w-6xl mx-auto px-4 sm:px-6">
 
-            <div className="max-w-6xl mx-auto px-6 relative z-10">
-
-                {/* Header */}
-                <div className="text-center mb-16 fade-up opacity-0 translate-y-6 transition duration-700">
-                    <div className="text-indigo-400 font-mono text-xs uppercase tracking-[0.3em] mb-4 flex items-center justify-center gap-3">
-                        <span className="w-8 h-[1px] bg-indigo-500/30"></span>
-                        /&gt; Core Infrastructure
-                        <span className="w-8 h-[1px] bg-indigo-500/30"></span>
-                    </div>
-
-                    <h2 className="text-4xl md:text-5xl font-black tracking-tighter">
-                        Integrated <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 animate-text-glow">Stack</span>
+                <div className="max-w-2xl fade-up opacity-0 translate-y-6 transition duration-700">
+                    <div className="eyebrow mb-4">{t.tech.eyebrow}</div>
+                    <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                        {t.tech.title}
                     </h2>
-
-                    <p className="text-gray-400 mt-6 max-w-xl mx-auto font-light leading-relaxed">
-                        A robust matrix of modern frameworks and specialized cloud architectures optimized for low-latency scale.
+                    <p className="text-muted mt-4 leading-relaxed">
+                        {t.tech.subtitle}
                     </p>
                 </div>
 
-                {/* Categories */}
-                <div className="flex flex-wrap justify-center gap-3 mb-12 fade-up opacity-0 translate-y-6 transition duration-700">
-                    {categories.map(cat => (
-                        <span
-                            key={cat}
-                            className="px-6 py-1.5 text-[10px] font-mono uppercase tracking-[0.2em] bg-white/5 text-indigo-300 border border-white/10 rounded-sm hover:border-cyan-400/40 transition-all cursor-default"
-                        >
-                            {cat}
-                        </span>
-                    ))}
-                </div>
-
-                {/* Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 fade-up opacity-0 translate-y-6 transition duration-700">
-                    {safeData.map((t, i) => (
-                        <div
-                            key={i}
-                            className="group bg-[#08080E] p-6 rounded-lg border border-white/5 hover:border-cyan-500/40 hover:bg-[#0A0A15] transition-all duration-300 text-center relative overflow-hidden"
-                        >
-                            {/* Static grid glow effect on hover */}
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.05)_0%,transparent_100%)] opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                            <div className="text-4xl mb-4 transform group-hover:-translate-y-2 transition-transform duration-300 grayscale group-hover:grayscale-0 relative z-10">
-                                {t.emoji || '⚙️'}
-                            </div>
-
-                            <div className="text-[13px] font-bold text-gray-200 tracking-tight group-hover:text-white transition-colors relative z-10">
-                                {t.name || '-'}
-                            </div>
-
-                            <div className="text-[9px] text-indigo-500 mt-2 font-mono uppercase tracking-[0.2em] relative z-10">
-                                {t.category}
-                            </div>
-                        </div>
-                    ))}
+                <div className="mt-8 flex flex-wrap gap-2 fade-up opacity-0 translate-y-6 transition duration-700">
+                    {names.map(name => <TechLabel key={name} name={name} />)}
                 </div>
 
             </div>

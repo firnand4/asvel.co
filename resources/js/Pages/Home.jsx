@@ -12,6 +12,58 @@ import TechStack from '../Components/sections/TechStack';
 import Process from '../Components/sections/Process';
 import Blog from '../Components/sections/Blog';
 import Contact from '../Components/sections/Contact';
+import { LanguageProvider, useLang } from '../i18n';
+
+const defaultSettings = {
+    company_name: 'Asvel Coding Factory',
+    email: 'firnanda.aap@gmail.com',
+    whatsapp: '+62 813-3341-3109',
+    whatsapp_number: '6281333413109',
+    office_address: 'Malang, Jawa Timur, Indonesia',
+    office_hours: '24/7',
+};
+
+function HomeContent({ team, services, portfolio, blogPosts, testimonials, techStacks, settings, stats }) {
+    const { lang, t } = useLang();
+    const s = { ...defaultSettings, ...(settings || {}) };
+
+    // Admin-edited texts are stored in Indonesian; English falls back to the dictionary.
+    const pick = (value, fallback) => (lang === 'id' && value ? value : fallback);
+    const copy = {
+        tagline: pick(s.tagline, t.hero.title),
+        subheadline: pick(s.subheadline, t.hero.subtitle),
+        about_intro: pick(s.about_intro, t.about.intro),
+        vision: pick(s.vision, t.about.visionText),
+        mission: pick(s.mission, t.about.missionText),
+    };
+
+    return (
+        <>
+            <Head>
+                <title>{t.meta.title}</title>
+                <meta head-key="description" name="description" content={t.meta.description} />
+            </Head>
+
+            <Navbar />
+
+            <main>
+                <Hero settings={s} copy={copy} stats={stats} hasPortfolio={portfolio.length > 0} />
+                <About copy={copy} />
+                <Services services={services} />
+                <Portfolio projects={portfolio} />
+                <Testimonials testimonials={testimonials} />
+                <Team team={team} />
+                <TechStack techStack={techStacks} />
+                <Process />
+                <Blog posts={blogPosts} />
+                <Contact settings={s} />
+            </main>
+
+            <Footer settings={s} copy={copy} />
+            <WhatsAppButton wa={s.whatsapp_number} />
+        </>
+    );
+}
 
 export default function Home({
     team = [],
@@ -20,45 +72,12 @@ export default function Home({
     blogPosts = [],
     testimonials = [],
     techStacks = [],
-    settings = {}
+    settings = {},
+    stats = {},
 }) {
-    const defaultSettings = {
-        company_name: 'ASVEL',
-        tagline: 'asvel coding factory',
-        subheadline: 'ASVEL is a premier software house specializing in Web Development, Mobile Apps, AI & Computer Vision, and Data Science.',
-        stats_projects: '50+', stats_clients: '30+', stats_years: '5+', stats_satisfaction: '99%',
-        about_intro: 'ASVEL is a technology-driven software house founded by engineers who believe that great software is the foundation of every successful modern business.',
-        vision: 'To be the leading software partner for businesses across Southeast Asia and beyond.',
-        mission: 'Deliver scalable, high-quality software solutions that exceed expectations, on time and on budget.',
-        email: 'firnanda.aap@gmail.com', whatsapp: '+62 813-3341-3109', whatsapp_number: '6281333413109', office_address: 'Malang, Jawa Timur, Indonesia', office_hours: '24/7',
-    };
-
-    const s = { ...defaultSettings, ...(settings || {}) };
-
     return (
-        <>
-            <Head>
-                <title>{`${s?.company_name || 'ASVEL'} - ${s?.tagline || ''}`}</title>
-                <meta name="description" content={s?.subheadline || ''} />
-            </Head>
-
-            <Navbar companyName={s.company_name} />
-
-            <main>
-                <Hero settings={s} />
-                <About settings={s} />
-                <Services services={services} />
-                <Portfolio projects={portfolio} />
-                <Testimonials testimonials={testimonials} />
-                <Team team={team} />
-                <TechStack techStacks={techStacks || []} />
-                <Process />
-                <Blog posts={blogPosts} />
-                <Contact settings={s} />
-            </main>
-
-            <Footer settings={s} />
-            <WhatsAppButton wa={s.whatsapp_number} />
-        </>
+        <LanguageProvider>
+            <HomeContent {...{ team, services, portfolio, blogPosts, testimonials, techStacks, settings, stats }} />
+        </LanguageProvider>
     );
 }

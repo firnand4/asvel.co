@@ -1,11 +1,13 @@
 import React from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { useForm, Link } from '@inertiajs/react';
+import IconPicker from '@/Components/Admin/IconPicker';
 
 export default function Form({ post }) {
     const isEditing = !!post.id;
     const { data, setData, post: postData, put, processing, errors } = useForm({
         title: post.title || '',
+        slug: post.slug || '',
         category: post.category || '',
         excerpt: post.excerpt || '',
         content: post.content || '',
@@ -43,6 +45,15 @@ export default function Form({ post }) {
                             value={data.title} onChange={e => setData('title', e.target.value)}
                         />
                         {errors.title && <div className="badge-danger">{errors.title}</div>}
+                    </div>
+
+                    <div className="admin-form-group">
+                        <label className="admin-label">Slug (URL: /blog/slug). Leave empty to generate from the title</label>
+                        <input
+                            type="text" className="admin-input" placeholder="judul-artikel-anda"
+                            value={data.slug} onChange={e => setData('slug', e.target.value)}
+                        />
+                        {errors.slug && <div className="badge-danger">{errors.slug}</div>}
                     </div>
 
                     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem'}}>
@@ -87,13 +98,7 @@ export default function Form({ post }) {
                     </div>
 
                     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem'}}>
-                        <div className="admin-form-group">
-                            <label className="admin-label">Emoji Icon</label>
-                            <input
-                                type="text" className="admin-input"
-                                value={data.emoji} onChange={e => setData('emoji', e.target.value)}
-                            />
-                        </div>
+                        <IconPicker label="Icon" value={data.emoji} onChange={v => setData('emoji', v)} error={errors.emoji} />
                         <div className="admin-form-group">
                             <label className="admin-label">Publish Date</label>
                             <input

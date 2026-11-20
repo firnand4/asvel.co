@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { useForm, Link } from '@inertiajs/react';
+import IconPicker from '@/Components/Admin/IconPicker';
+import TagInput from '@/Components/Admin/TagInput';
 
 export default function Form({ service }) {
     const isEditing = !!service.id;
@@ -14,25 +16,6 @@ export default function Form({ service }) {
         order: service.order || 0,
         is_active: service.is_active ?? true,
     });
-
-    const [benefitInput, setBenefitInput] = useState('');
-    const [techInput, setTechInput] = useState('');
-
-    const handleAddBenefit = (e) => {
-        if (e.key === 'Enter' && benefitInput.trim()) {
-            e.preventDefault();
-            setData('benefits', [...data.benefits, benefitInput.trim()]);
-            setBenefitInput('');
-        }
-    };
-
-    const handleAddTech = (e) => {
-        if (e.key === 'Enter' && techInput.trim()) {
-            e.preventDefault();
-            setData('tech', [...data.tech, techInput.trim()]);
-            setTechInput('');
-        }
-    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -73,12 +56,8 @@ export default function Form({ service }) {
                         </div>
                     </div>
 
-                    <div className="admin-form-group">
-                        <label className="admin-label">Icon (Emoji)</label>
-                        <input
-                            type="text" className="admin-input" style={{width: '100px'}}
-                            value={data.icon} onChange={e => setData('icon', e.target.value)}
-                        />
+                    <div style={{maxWidth: 240}}>
+                        <IconPicker label="Icon" value={data.icon} onChange={v => setData('icon', v)} error={errors.icon} />
                     </div>
 
                     <div className="admin-form-group">
@@ -89,38 +68,21 @@ export default function Form({ service }) {
                         />
                     </div>
 
-                    <div className="admin-form-group">
-                        <label className="admin-label">Benefits (Type and press Enter)</label>
-                        <input
-                            type="text" className="admin-input"
-                            value={benefitInput} onChange={e => setBenefitInput(e.target.value)}
-                            onKeyDown={handleAddBenefit}
-                            placeholder="e.g. 24/7 Support, High Performance..."
-                        />
-                        <div style={{marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
-                            {data.benefits.map((b, i) => (
-                                <span key={i} className="admin-badge badge-success">
-                                    {b} <button type="button" onClick={() => setData('benefits', data.benefits.filter((_, idx) => idx !== i))} style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'inherit'}}>×</button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                    <TagInput
+                        label="Benefits"
+                        values={data.benefits}
+                        onChange={v => setData('benefits', v)}
+                        placeholder="Contoh: Deteksi objek real-time"
+                        error={errors.benefits}
+                    />
 
-                    <div className="admin-form-group">
-                        <label className="admin-label">Technologies (Type and press Enter)</label>
-                        <input
-                            type="text" className="admin-input"
-                            value={techInput} onChange={e => setTechInput(e.target.value)}
-                            onKeyDown={handleAddTech}
-                        />
-                        <div style={{marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
-                            {data.tech.map((t, i) => (
-                                <span key={i} className="admin-badge" style={{background: 'var(--admin-surface-2)', color: 'var(--admin-text)'}}>
-                                    {t} <button type="button" onClick={() => setData('tech', data.tech.filter((_, idx) => idx !== i))} style={{border: 'none', background: 'transparent', cursor: 'pointer', color: 'inherit'}}>×</button>
-                                </span>
-                            ))}
-                        </div>
-                    </div>
+                    <TagInput
+                        label="Technologies"
+                        values={data.tech}
+                        onChange={v => setData('tech', v)}
+                        placeholder="Contoh: Python"
+                        error={errors.tech}
+                    />
 
                     <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem'}}>
                         <div className="admin-form-group">
