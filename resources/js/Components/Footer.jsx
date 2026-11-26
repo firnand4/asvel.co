@@ -1,7 +1,7 @@
 import { useLang, waLink } from '../i18n';
 
-export default function Footer({ settings, copy }) {
-    const { t } = useLang();
+export default function Footer({ settings, copy, servicePages = [] }) {
+    const { t, lang } = useLang();
 
     const companyLinks = ['about', 'portfolio', 'team', 'blog', 'contact'];
 
@@ -27,11 +27,19 @@ export default function Footer({ settings, copy }) {
                     <div>
                         <h4 className="text-fg text-sm font-semibold mb-5">{t.footer.services}</h4>
                         <ul className="space-y-3 text-sm">
-                            {t.footer.serviceList.map(item => (
-                                <li key={item}>
-                                    <a href="#services" className="hover:text-accent transition-colors">{item}</a>
-                                </li>
-                            ))}
+                            {servicePages.length
+                                ? servicePages.map(p => (
+                                    <li key={p.slug}>
+                                        <a href={`/layanan/${p.slug}`} className="hover:text-accent transition-colors">
+                                            {lang === 'en' && p.h1_en ? p.h1_en : p.h1}
+                                        </a>
+                                    </li>
+                                ))
+                                : t.footer.serviceList.map(item => (
+                                    <li key={item}>
+                                        <a href="#services" className="hover:text-accent transition-colors">{item}</a>
+                                    </li>
+                                ))}
                         </ul>
                     </div>
 

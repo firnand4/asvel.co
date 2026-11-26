@@ -33,8 +33,8 @@ class GlobalErrorBoundary extends React.Component {
 }
 
 createInertiaApp({
-    // Pages whose title already carries the brand (e.g. Home) are used as-is.
-    title: (title) => (title.includes(appName) ? title : `${title} - ${appName}`),
+    // Titles that already name the brand (SEO titles such as "… | Asvel") are used as-is.
+    title: (title) => (/asvel/i.test(title) ? title : `${title} - ${appName}`),
     resolve: (name) => {
         try {
             console.log('Resolving page:', name);

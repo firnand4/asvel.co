@@ -1,0 +1,20 @@
+# Inertia SSR server for asvel.id
+# Install:  sudo cp deploy/asvel-ssr.service /etc/systemd/system/asvel-ssr.service
+#           sudo systemctl daemon-reload && sudo systemctl enable --now asvel-ssr
+[Unit]
+Description=Asvel Inertia SSR server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/asvel.id
+ExecStart=/usr/bin/php /var/www/asvel.id/artisan inertia:start-ssr
+Restart=always
+RestartSec=3
+# Node must be on PATH for artisan to start the SSR bundle
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=multi-user.target

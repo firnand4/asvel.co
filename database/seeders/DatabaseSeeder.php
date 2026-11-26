@@ -74,5 +74,6 @@ class DatabaseSeeder extends Seeder
 
         // ── Site Settings ─────────────────────────────────────
         $this->call(SiteSettingSeeder::class);
+        $this->call(ServicePagesSeeder::class);
     }
 }

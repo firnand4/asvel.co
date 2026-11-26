@@ -27,6 +27,7 @@ export default function AdminLayout({ children, title }) {
         { label: 'Messages', href: '/admin/messages', icon: '📬' },
         { label: 'Content', type: 'label' },
         { label: 'Services', href: '/admin/services', icon: '🌐' },
+        { label: 'Service Pages', href: '/admin/service-pages', icon: '📄' },
         { label: 'Portfolio', href: '/admin/portfolio', icon: '🚀' },
         { label: 'Team', href: '/admin/team', icon: '👥' },
         { label: 'Blog', href: '/admin/blog', icon: '📝' },

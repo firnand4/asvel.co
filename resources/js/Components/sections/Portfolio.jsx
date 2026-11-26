@@ -1,46 +1,51 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLang } from '../../i18n';
 
-const AUTOPLAY_MS = 4000;
+const SPEED_PX_PER_S = 40;
+const EASE_PER_S = 4; // how fast the speed eases towards moving/stopped (~0.5s)
 
-// Shows the screenshot from public/<image>; falls back to a placeholder until the file exists.
+// Screenshot from public/<image>; a short icon strip until the file exists.
 function ProjectImage({ project }) {
     const [failed, setFailed] = useState(false);
     const src = project.image && !failed ? `/${project.image.replace(/^\/+/, '')}` : null;
 
-    return (
-        <div className="relative aspect-[16/10] bg-accent/[0.07] border-b border-line-soft overflow-hidden">
-            {src ? (
+    if (src) {
+        return (
+            <div className="relative aspect-[16/9] bg-accent/[0.07] border-b border-line-soft overflow-hidden">
                 <img
                     src={src}
                     alt={project.title}
                     loading="lazy"
                     onError={() => setFailed(true)}
-                    className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover object-top"
                 />
-            ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-6 text-center">
-                    <span className="relative text-5xl">{project.emoji}</span>
-                    <span className="relative text-sm text-subtle">{project.title}</span>
-                </div>
-            )}
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex h-24 items-center justify-center bg-accent/[0.07] border-b border-line-soft text-4xl" aria-hidden="true">
+            {project.emoji}
         </div>
     );
 }
 
-function ProjectCard({ project: p, t, className = '' }) {
+export function ProjectCard({ project: p, t, className = '', hidden = false }) {
     return (
-        <div className={`bg-surface rounded-lg overflow-hidden border border-line-soft hover:border-brand/40 transition-colors duration-300 group flex flex-col ${className}`}>
+        <div
+            className={`bg-surface rounded-lg overflow-hidden border border-line-soft hover:border-brand/40 transition-colors duration-300 group ${className}`}
+            aria-hidden={hidden || undefined}
+        >
             <ProjectImage project={p} />
 
-            <div className="p-7 flex flex-col gap-4 flex-1">
+            <div className="p-5 flex flex-col gap-2">
                 {p.category && (
                     <span className="self-start text-xs font-semibold text-accent bg-accent/10 border border-accent/20 px-2.5 py-0.5 rounded-full">
                         {p.category}
                     </span>
                 )}
 
-                <h3 className="text-lg font-semibold text-fg group-hover:text-brand transition-colors">
+                <h3 className="text-base font-semibold leading-snug text-fg group-hover:text-brand transition-colors">
                     {p.title}
                 </h3>
 
@@ -51,7 +56,7 @@ function ProjectCard({ project: p, t, className = '' }) {
                 )}
 
                 {(p.tech || []).length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-1">
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
                         {p.tech.map(tech => (
                             <span key={tech} className="text-[11px] text-brand bg-brand/10 border border-brand/20 px-2 py-0.5 rounded">
                                 {tech}
@@ -61,16 +66,16 @@ function ProjectCard({ project: p, t, className = '' }) {
                 )}
 
                 {(p.problem || p.result) && (
-                    <div className="mt-2 pt-4 border-t border-line-soft text-[13px] space-y-3">
+                    <div className="mt-1 pt-3 border-t border-line-soft text-[13px] space-y-2">
                         {p.problem && (
                             <div>
-                                <span className="text-subtle block mb-1 font-semibold">{t.portfolio.problem}</span>
+                                <span className="text-subtle block font-semibold">{t.portfolio.problem}</span>
                                 <p className="text-muted leading-relaxed">{p.problem}</p>
                             </div>
                         )}
                         {p.result && (
                             <div>
-                                <span className="text-accent block mb-1 font-semibold">{t.portfolio.result}</span>
+                                <span className="text-accent block font-semibold">{t.portfolio.result}</span>
                                 <p className="text-fg-2 leading-relaxed">{p.result}</p>
                             </div>
                         )}
@@ -93,24 +98,22 @@ function usePrefersReducedMotion() {
     return reduced;
 }
 
-const controlClass = 'grid h-11 w-11 place-items-center rounded-full border border-line bg-surface text-fg hover:border-fg/40 disabled:opacity-35 disabled:cursor-default transition-colors';
+const CARD_WIDTH = 'w-[min(380px,85vw)]';
+const CARD_GAP = 20; // gap-5
 
 export default function Portfolio({ projects = [] }) {
     const { t } = useLang();
     const ref = useRef(null);
     const trackRef = useRef(null);
+    const touchTimer = useRef(null);
 
     const [query, setQuery] = useState('');
     const [category, setCategory] = useState('');
-    const [canPrev, setCanPrev] = useState(false);
-    const [canNext, setCanNext] = useState(false);
     const [paused, setPaused] = useState(false);          // pause/play button
     const [interacting, setInteracting] = useState(false); // hover, focus or touch
     const [inView, setInView] = useState(false);
-    const [tabVisible, setTabVisible] = useState(true);
-    const [restartKey, setRestartKey] = useState(0);       // restarts the 4s countdown after manual moves
+    const [fits, setFits] = useState(false);               // all cards fit on screen: no need to move
     const reducedMotion = usePrefersReducedMotion();
-    const touchTimer = useRef(null);
 
     const categories = useMemo(
         () => [...new Set(projects.map(p => p.category).filter(Boolean))],
@@ -128,37 +131,10 @@ export default function Portfolio({ projects = [] }) {
         });
     }, [projects, query, category]);
 
-    // Enable/disable the arrows from the carousel's scroll position.
-    useEffect(() => {
-        const track = trackRef.current;
-        if (!track) return;
-        const update = () => {
-            setCanPrev(track.scrollLeft > 4);
-            setCanNext(track.scrollLeft + track.clientWidth < track.scrollWidth - 4);
-        };
-        update();
-        track.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
-        return () => {
-            track.removeEventListener('scroll', update);
-            window.removeEventListener('resize', update);
-        };
-    }, [projects.length, filtering]);
+    const marquee = !filtering && !reducedMotion && !fits;
+    const moving = marquee && !paused && !interacting && inView;
 
-    // Only autoplay while the section is on screen and the tab is visible.
-    useEffect(() => {
-        const section = ref.current;
-        if (!section) return;
-        const obs = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.3 });
-        obs.observe(section);
-        const onVisibility = () => setTabVisible(document.visibilityState === 'visible');
-        document.addEventListener('visibilitychange', onVisibility);
-        return () => {
-            obs.disconnect();
-            document.removeEventListener('visibilitychange', onVisibility);
-        };
-    }, [projects.length]);
-
+    // Fade-in on scroll; re-run when the marquee/grid swap re-mounts elements.
     useEffect(() => {
         const items = ref.current?.querySelectorAll('.fade-up');
         const obs = new IntersectionObserver(entries => {
@@ -169,48 +145,64 @@ export default function Portfolio({ projects = [] }) {
 
         items?.forEach(i => obs.observe(i));
         return () => obs.disconnect();
-    }, [projects.length, filtering]); // the carousel re-mounts when search/filter is cleared
+    }, [projects.length, filtering, marquee]);
+
+    // Only animate while the section is on screen.
+    useEffect(() => {
+        const section = ref.current;
+        if (!section) return;
+        const obs = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.2 });
+        obs.observe(section);
+        return () => obs.disconnect();
+    }, [projects.length]);
+
+    // If one set of cards fits in the container, show it static instead of scrolling it.
+    // Computed from the window size (not the DOM) because the marquee is unmounted while static.
+    useEffect(() => {
+        const measure = () => {
+            const vw = window.innerWidth;
+            const container = Math.min(vw, 1152) - (vw >= 640 ? 48 : 32); // max-w-6xl minus side padding
+            const card = Math.min(380, vw * 0.85);
+            setFits(projects.length * (card + CARD_GAP) - CARD_GAP <= container);
+        };
+        measure();
+        window.addEventListener('resize', measure);
+        return () => window.removeEventListener('resize', measure);
+    }, [projects.length]);
+
+    // Marquee loop: the list is rendered twice, so wrapping by one set's width is seamless.
+    const motion = useRef({ offset: 0, speed: 0, target: 0 });
+    motion.current.target = moving ? SPEED_PX_PER_S : 0;
+
+    useEffect(() => {
+        if (!marquee) return;
+        let frame;
+        let last = performance.now();
+        const tick = (now) => {
+            const dt = Math.min((now - last) / 1000, 0.1);
+            last = now;
+            const m = motion.current;
+            m.speed += (m.target - m.speed) * Math.min(1, dt * EASE_PER_S); // smooth stop / start
+            const track = trackRef.current;
+            const loop = track?.children[projects.length]?.offsetLeft;
+            if (track && loop) {
+                m.offset = (m.offset + m.speed * dt) % loop;
+                track.style.transform = `translate3d(${-m.offset}px, 0, 0)`;
+            }
+            frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
+        return () => cancelAnimationFrame(frame);
+    }, [marquee, projects.length]);
 
     useEffect(() => () => clearTimeout(touchTimer.current), []);
 
-    // The carousel unmounts while searching, so a pending hover/touch would never get its "leave" event.
+    // The marquee unmounts while searching, so a pending hover/touch would never get its "leave" event.
     useEffect(() => {
         clearTimeout(touchTimer.current);
         setInteracting(false);
     }, [filtering]);
 
-    const scrollByCard = (dir) => {
-        const track = trackRef.current;
-        const card = track?.firstElementChild;
-        if (!card) return;
-        const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
-        track.scrollBy({ left: dir * (card.offsetWidth + gap), behavior: 'smooth' });
-    };
-
-    const overflows = canPrev || canNext;
-    const autoplayOn = !reducedMotion && !filtering && !paused && !interacting && inView && tabVisible && overflows;
-
-    useEffect(() => {
-        if (!autoplayOn) return;
-        const timer = setInterval(() => {
-            const track = trackRef.current;
-            if (!track) return;
-            const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
-            if (atEnd) {
-                track.scrollTo({ left: 0, behavior: 'smooth' }); // loop back to the first card
-            } else {
-                scrollByCard(1);
-            }
-        }, AUTOPLAY_MS);
-        return () => clearInterval(timer);
-    }, [autoplayOn, restartKey]);
-
-    const manualMove = (dir) => {
-        scrollByCard(dir);
-        setRestartKey(k => k + 1);
-    };
-
-    // Pause while the pointer, keyboard focus or a finger is on the carousel; resume afterwards.
     const interactionHandlers = {
         onMouseEnter: () => setInteracting(true),
         onMouseLeave: () => setInteracting(false),
@@ -223,12 +215,13 @@ export default function Portfolio({ projects = [] }) {
             setInteracting(true);
         },
         onTouchEnd: () => {
-            // let the swipe and snap settle before the countdown starts again
             touchTimer.current = setTimeout(() => setInteracting(false), 800);
         },
     };
 
     if (!projects.length) return null;
+
+    const gridItems = filtering ? results : projects;
 
     return (
         <section id="portfolio" className="py-24 text-fg overflow-hidden" ref={ref}>
@@ -248,31 +241,21 @@ export default function Portfolio({ projects = [] }) {
                         </p>
                     </div>
 
-                    {!filtering && overflows && (
-                        <div className="flex gap-2">
-                            <button type="button" onClick={() => manualMove(-1)} disabled={!canPrev} aria-label={t.portfolio.prev} className={`${controlClass} max-sm:hidden`}>
-                                ←
-                            </button>
-                            {!reducedMotion && (
-                                <button
-                                    type="button"
-                                    onClick={() => setPaused(p => !p)}
-                                    aria-pressed={paused}
-                                    aria-label={paused ? t.portfolio.play : t.portfolio.pause}
-                                    title={paused ? t.portfolio.play : t.portfolio.pause}
-                                    className={controlClass}
-                                >
-                                    {paused ? (
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                                    ) : (
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" /></svg>
-                                    )}
-                                </button>
+                    {marquee && (
+                        <button
+                            type="button"
+                            onClick={() => setPaused(p => !p)}
+                            aria-pressed={paused}
+                            aria-label={paused ? t.portfolio.play : t.portfolio.pause}
+                            title={paused ? t.portfolio.play : t.portfolio.pause}
+                            className="grid h-11 w-11 place-items-center rounded-full border border-line bg-surface text-fg hover:border-fg/40 transition-colors"
+                        >
+                            {paused ? (
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                            ) : (
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z" /></svg>
                             )}
-                            <button type="button" onClick={() => manualMove(1)} disabled={!canNext} aria-label={t.portfolio.next} className={`${controlClass} max-sm:hidden`}>
-                                →
-                            </button>
-                        </div>
+                        </button>
                     )}
                 </div>
 
@@ -317,38 +300,38 @@ export default function Portfolio({ projects = [] }) {
                     {filtering ? t.portfolio.found.replace('{n}', results.length) : ''}
                 </p>
 
-                {filtering ? (
-                    results.length ? (
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {results.map((p, i) => <ProjectCard key={p.id ?? i} project={p} t={t} />)}
-                        </div>
-                    ) : (
-                        <div className="rounded-lg border border-dashed border-line py-16 text-center">
-                            <p className="text-muted">{t.portfolio.empty}</p>
-                            <button
-                                type="button"
-                                onClick={() => { setQuery(''); setCategory(''); }}
-                                className="mt-4 text-sm font-semibold text-brand hover:underline"
-                            >
-                                {t.portfolio.reset}
-                            </button>
-                        </div>
-                    )
-                ) : (
-                    // Carousel: one card per slide on phones (swipe), two on tablets, three on desktop
+                {marquee ? (
+                    // Moving strip; the second copy is decorative so screen readers read each project once.
                     <div
-                        ref={trackRef}
                         {...interactionHandlers}
-                        className="no-scrollbar -mx-4 px-4 scroll-px-4 sm:mx-0 sm:px-0 sm:scroll-px-0 flex gap-6 overflow-x-auto snap-x snap-mandatory pb-2 fade-up opacity-0 translate-y-6 transition duration-700"
+                        className="-mx-4 sm:mx-0 overflow-hidden fade-up opacity-0 translate-y-6 transition duration-700"
                     >
-                        {projects.map((p, i) => (
-                            <ProjectCard
-                                key={p.id ?? i}
-                                project={p}
-                                t={t}
-                                className="shrink-0 snap-start w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc((100%-3rem)/3)]"
-                            />
-                        ))}
+                        <div ref={trackRef} className="flex w-max items-start gap-5 px-4 sm:px-0 will-change-transform">
+                            {[...projects, ...projects].map((p, i) => (
+                                <ProjectCard
+                                    key={`${p.id ?? i}-${i}`}
+                                    project={p}
+                                    t={t}
+                                    hidden={i >= projects.length}
+                                    className={`shrink-0 ${CARD_WIDTH}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                ) : gridItems.length ? (
+                    <div className="grid items-start gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        {gridItems.map((p, i) => <ProjectCard key={p.id ?? i} project={p} t={t} />)}
+                    </div>
+                ) : (
+                    <div className="rounded-lg border border-dashed border-line py-16 text-center">
+                        <p className="text-muted">{t.portfolio.empty}</p>
+                        <button
+                            type="button"
+                            onClick={() => { setQuery(''); setCategory(''); }}
+                            className="mt-4 text-sm font-semibold text-brand hover:underline"
+                        >
+                            {t.portfolio.reset}
+                        </button>
                     </div>
                 )}
             </div>

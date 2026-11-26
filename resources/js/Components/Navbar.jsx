@@ -4,7 +4,7 @@ import ThemeToggle from './ThemeToggle';
 
 const sectionIds = ['about', 'services', 'portfolio', 'team', 'process', 'blog', 'contact'];
 
-function LanguageSwitch({ className = '' }) {
+export function LanguageSwitch({ className = '' }) {
     const { lang, setLang, t } = useLang();
 
     return (

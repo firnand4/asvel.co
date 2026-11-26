@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useLang } from '../../i18n';
 
-export default function Services({ services = [] }) {
+export default function Services({ services = [], servicePages = [] }) {
     const { t } = useLang();
+    const pageFor = (service) => servicePages.find(p => p.service_id === service.id);
     const ref = useRef(null);
 
     useEffect(() => {
@@ -71,6 +72,15 @@ export default function Services({ services = [] }) {
                                         </span>
                                     ))}
                                 </div>
+                            )}
+
+                            {pageFor(s) && (
+                                <a
+                                    href={`/layanan/${pageFor(s).slug}`}
+                                    className={`${(s.tech || []).length ? 'mt-5' : 'mt-auto'} self-start text-sm font-semibold text-brand hover:underline`}
+                                >
+                                    {t.services.more} <span className="sr-only">{s.title}</span> →
+                                </a>
                             )}
                         </div>
                     ))}

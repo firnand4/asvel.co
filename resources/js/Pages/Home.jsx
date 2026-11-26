@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import Seo from '../Components/Seo';
 import Navbar from '../Components/Navbar';
 import Footer from '../Components/Footer';
 import WhatsAppButton from '../Components/WhatsAppButton';
@@ -23,7 +23,7 @@ const defaultSettings = {
     office_hours: '24/7',
 };
 
-function HomeContent({ team, services, portfolio, blogPosts, testimonials, techStacks, settings, stats }) {
+function HomeContent({ team, services, portfolio, blogPosts, testimonials, techStacks, settings, stats, servicePages, seo }) {
     const { lang, t } = useLang();
     const s = { ...defaultSettings, ...(settings || {}) };
 
@@ -39,17 +39,14 @@ function HomeContent({ team, services, portfolio, blogPosts, testimonials, techS
 
     return (
         <>
-            <Head>
-                <title>{t.meta.title}</title>
-                <meta head-key="description" name="description" content={t.meta.description} />
-            </Head>
+            <Seo seo={seo} title={t.meta.title} description={t.meta.description} lang={lang} />
 
             <Navbar />
 
             <main>
                 <Hero settings={s} copy={copy} stats={stats} hasPortfolio={portfolio.length > 0} />
                 <About copy={copy} />
-                <Services services={services} />
+                <Services services={services} servicePages={servicePages} />
                 <Portfolio projects={portfolio} />
                 <Testimonials testimonials={testimonials} />
                 <Team team={team} />
@@ -59,7 +56,7 @@ function HomeContent({ team, services, portfolio, blogPosts, testimonials, techS
                 <Contact settings={s} />
             </main>
 
-            <Footer settings={s} copy={copy} />
+            <Footer settings={s} copy={copy} servicePages={servicePages} />
             <WhatsAppButton wa={s.whatsapp_number} />
         </>
     );
@@ -74,10 +71,12 @@ export default function Home({
     techStacks = [],
     settings = {},
     stats = {},
+    servicePages = [],
+    seo = {},
 }) {
     return (
         <LanguageProvider>
-            <HomeContent {...{ team, services, portfolio, blogPosts, testimonials, techStacks, settings, stats }} />
+            <HomeContent {...{ team, services, portfolio, blogPosts, testimonials, techStacks, settings, stats, servicePages, seo }} />
         </LanguageProvider>
     );
 }
