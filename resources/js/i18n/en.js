@@ -81,8 +81,10 @@ export default {
     },
     team: {
         eyebrow: 'Team',
-        title: 'The people behind every project',
+        title: 'Our Team',
         subtitle: 'Engineers, designers, and AI specialists who will work on your project.',
+        founderTitle: 'Behind Asvel',
+        linkedin: 'LinkedIn profile',
     },
     tech: {
         eyebrow: 'Technology',

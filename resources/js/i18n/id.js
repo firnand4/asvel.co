@@ -81,8 +81,10 @@ export default {
     },
     team: {
         eyebrow: 'Tim',
-        title: 'Orang di balik setiap proyek',
+        title: 'Tim Kami',
         subtitle: 'Engineer, desainer, dan spesialis AI yang akan mengerjakan proyek Anda.',
+        founderTitle: 'Di balik Asvel',
+        linkedin: 'Profil LinkedIn',
     },
     tech: {
         eyebrow: 'Teknologi',
