@@ -81,7 +81,7 @@ export default function Team({ team = [] }) {
             <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
 
                 <div className="mb-10 max-w-2xl fade-up opacity-0 translate-y-6 transition duration-700">
-                    <div className="eyebrow mb-4">{t.team.eyebrow}</div>
+                    {!isFounder && <div className="eyebrow mb-4">{t.team.eyebrow}</div>}
 
                     <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
                         {isFounder ? t.team.founderTitle : t.team.title}
