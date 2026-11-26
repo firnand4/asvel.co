@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Deploy asvel.id on the VPS. Run from any directory as the user that owns the app files:
-#   bash /var/www/asvel.id/deploy.sh
+#   bash /var/www/asvel.co/deploy.sh
 #
 # Assumes the SSR server runs as the systemd unit in deploy/asvel-ssr.service (Restart=always),
 # so stopping it at the end makes systemd start it again with the new bundle.
 set -euo pipefail
 
-APP_DIR="${APP_DIR:-/var/www/asvel.id}"
+APP_DIR="${APP_DIR:-/var/www/asvel.co}"
 cd "$APP_DIR"
 
 echo "==> Maintenance mode"

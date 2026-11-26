@@ -9,8 +9,8 @@ After=network.target
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/asvel.id
-ExecStart=/usr/bin/php /var/www/asvel.id/artisan inertia:start-ssr
+WorkingDirectory=/var/www/asvel.co
+ExecStart=/usr/bin/php /var/www/asvel.co/artisan inertia:start-ssr
 Restart=always
 RestartSec=3
 # Node must be on PATH for artisan to start the SSR bundle
