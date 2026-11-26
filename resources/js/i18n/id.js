@@ -72,6 +72,8 @@ export default {
         subtitle: 'Beberapa sistem yang sudah kami bangun.',
         problem: 'Masalah',
         result: 'Hasil',
+        prev: 'Geser ke proyek sebelumnya',
+        next: 'Geser ke proyek berikutnya',
         pause: 'Jeda slide otomatis',
         play: 'Putar slide otomatis',
         searchLabel: 'Cari proyek',

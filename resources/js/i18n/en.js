@@ -72,6 +72,8 @@ export default {
         subtitle: 'Some of the systems we have built.',
         problem: 'Problem',
         result: 'Result',
+        prev: 'Scroll to previous project',
+        next: 'Scroll to next project',
         pause: 'Pause autoplay',
         play: 'Play autoplay',
         searchLabel: 'Search projects',
